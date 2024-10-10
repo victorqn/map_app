@@ -1,0 +1,19 @@
+{
+  "name": "google-maps-react-app",
+  "version": "1.0.0",
+  "main": "index.js",
+"scripts": {
+  "client": "set NODE_OPTIONS=--openssl-legacy-provider && npm start --prefix client",
+  "start": "node server.js",
+  "dev": "concurrently \"npm run start\" \"npm run client\""
+},
+
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.0.1",
+    "express": "^4.21.0"
+  }
+}
