@@ -21,10 +21,6 @@ const connectToDB = async () => {
 }
 connectToDB()
 
-
-
-
-
 // Define the route to get all markers
 app.get('/api/markers', async (req, res) => {
   try {
