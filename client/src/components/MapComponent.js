@@ -16,7 +16,7 @@ const MapComponent = () => {
         const response = await axios.get(`${server}/api/markers`);
         setMarkers(response.data);
       } catch (error) {
-        console.error('Error fetching markers:', error);
+        console.error('Error fetching markers:', error.toString());
       }
     };
 
