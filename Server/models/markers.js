@@ -4,7 +4,7 @@ const markerSchema = new mongoose.Schema({
   lat: Number,
   lng: Number,
   description: String,
-  timer: String, // Store the timestamp when the marker was created
+  timer: Number, // Store the timestamp when the marker was created
   
 });
 

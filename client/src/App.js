@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
-import MapComponent from './components/MapComponent';
-import SearchBar from './components/SearchBar';
-import 'leaflet/dist/leaflet.css';
+import MapComponent from './components/MapComponent'; 
+import RecentMarkers from './components/RecentMarkers';
 
 function App() {
-  const [mapCenter, setMapCenter] = useState([51.505, -0.09]); // Default to London
+  const [markers, setMarkers] = React.useState([]);
 
   return (
-    <div className="App" style={{height:"100vh", width:"100%"}}>
-      <SearchBar setMapCenter={setMapCenter} />
-      <MapComponent mapCenter={mapCenter} />
+    <div className="App">
+      <div className="map-section">
+        <MapComponent markers={markers} setMarkers={setMarkers} />
+      </div>
+      <div className="recent-markers-section">
+        <RecentMarkers 
+        markers={markers}
+        style={{height:"100%", widht:"30vh"}} />
+      </div>
     </div>
   );
 }

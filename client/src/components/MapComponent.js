@@ -1,46 +1,85 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import axios from 'axios';
-import 'leaflet/dist/leaflet.css';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import SearchBar from './SearchBar';
+import MarkerForm from './MarkerForm'; // Import the new form component
 import L from 'leaflet';
-import MarkerForm from './MarkerForm'; // Import the form
-import SearchBar from './SearchBar'; // Import the Search Bar component
+
 
 const server = "http://localhost:5000";
 
 L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+  iconUrl: 'path_to_marker_icon',
+  shadowUrl: 'path_to_marker_shadow',
 });
 
 const MapComponent = () => {
   const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState(null); // Track selected marker
   const [mapCenter, setMapCenter] = useState([-37.8136, 144.9631]); // Default center
+  const [selectedMarker, setSelectedMarker] = useState(null); // Track selected marker
   const [showForm, setShowForm] = useState(false); // Track if the form should be displayed
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    const fetchMarkers = async () => {
-      try {
-        const response = await axios.get(`${server}/api/markers`);
-        setMarkers(response.data);
-      } catch (error) {
-        console.error('Error fetching markers:', error.toString());
+    // Fetch user's location on load
+    useEffect(() => {
+      const fetchUserLocation = async () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setMapCenter([latitude, longitude]);
+            },
+            async () => {
+              try {
+                const response = await axios.get("http://ip-api.com/json/");
+                const { lat, lon } = response.data;
+                setMapCenter([lat, lon]);
+              } catch (error) {
+                console.error("Error fetching IP location:", error);
+              }
+            }
+          );
+        } else {
+          try {
+            const response = await axios.get("http://ip-api.com/json/");
+            const { lat, lon } = response.data;
+            setMapCenter([lat, lon]);
+          } catch (error) {
+            console.error("Error fetching IP location:", error);
+          }
+        }
+      };
+      fetchUserLocation();
+    }, []);
+  
+    // Update the map center programmatically
+    useEffect(() => {
+      if (mapRef.current) {
+        const mapInstance = mapRef.current;
+        mapInstance.setView(mapCenter, mapInstance.getZoom());
       }
-    };
+    }, [mapCenter]);
+  
 
-    fetchMarkers();
-  }, []);
+    useEffect(() => {
+      const fetchMarkers = async () => {
+        try {
+          const response = await axios.get(`${server}/api/markers`);
+          setMarkers(response.data); // Update parent state with fetched markers
+        } catch (error) {
+          console.error('Error fetching markers:', error);
+        }
+      };
+      fetchMarkers();
+    }, [setMarkers]); // Dependency ensures parent state is updated
+    
 
   const addMarker = (lat, lng) => {
     const newMarker = {
       lat,
       lng,
       description: '10-minute timer marker',
-      timer: Date.now() + 600000, // 10 minutes from now
+      timer: Date.now() + 100000, // 10 minutes from now
     };
 
     axios.post(`${server}/api/markers`, newMarker)
@@ -58,7 +97,7 @@ const MapComponent = () => {
       setMarkers((prevMarkers) =>
         prevMarkers.filter((marker) => marker.timer > currentTime)
       );
-    }, 1000);
+    }, 50);
 
     return () => clearInterval(interval);
   }, []);
@@ -74,6 +113,8 @@ const MapComponent = () => {
     setShowForm(false); // Close the form after submission
   };
 
+  
+
   const MapClickHandler = () => {
     useMapEvents({
       click: (e) => {
@@ -84,27 +125,18 @@ const MapComponent = () => {
   };
 
   return (
-    <div style={{ position: 'relative', height: '100%' }}>
-      <SearchBar /> {/* Keep search bar intact */}
-      <MapContainer
-        center={mapCenter}
-        zoom={15}
-        style={{ height: '70%', width: '100%' }}
-        ref={(ref) => { if (ref) mapRef.current = ref; }}
-      >
+    <div style={{ position: 'absolute', height: '100%' }}>
+      <SearchBar setMapCenter={setMapCenter} />
+      <MapContainer center={mapCenter} zoom={20} style={{ height: '70%', width: '100%' }} ref={mapRef}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution="&copy; OpenStreetMap contributors"
         />
         <MapClickHandler />
         {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            position={[marker.lat, marker.lng]}
-            eventHandlers={{
-              click: () => handleMarkerClick(marker), // Show form when marker is clicked
-            }}
-          >
+          <Marker key={index} 
+          position={[marker.lat, marker.lng]} 
+          eventHandlers={{ click: () => handleMarkerClick(marker) }}>
             <Popup>
               {marker.description}
               <br />
@@ -114,10 +146,11 @@ const MapComponent = () => {
         ))}
       </MapContainer>
 
+      {/* Conditionally render the MarkerForm if a marker is selected */}
       {showForm && selectedMarker && (
         <div
           style={{
-            position: 'absolute',
+            position: 'relative',
             right: '20px',
             top: '20px',
             backgroundColor: 'white',
@@ -136,5 +169,4 @@ const MapComponent = () => {
     </div>
   );
 };
-
 export default MapComponent;

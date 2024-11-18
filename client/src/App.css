@@ -1,38 +1,124 @@
 .App {
-  text-align: center;
+  font-family: Arial, sans-serif;
+  display:inline-flex;
+  flex-direction:row;
+  height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+input {
+  padding: 8px;
+  margin: 5px;
+  width: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+button {
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+
+.MapContainer {
+  height: 70%;
+  width: 100%;
+  position: relative;
+  display:inline-flex;
+}
+
+.SearchBar {
+  position: relative;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 600px;
+}
+
+.MarkerForm {
+  position: fixed;
+  right: 10px;
+  top: 10%;
+  width: 300px;
+  background: white;
+  padding: 10px;
+  z-index: 1001;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+.search-input {
+  padding: 12px;
+  width: 100%;
+  max-width: 500px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #4CAF50;
+}
+
+.search-button {
+  padding: 12px 20px;
+  background-color: #4CAF50;
   color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.search-button:hover {
+  background-color: #45a049;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.search-results {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  position: absolute;
+  width: 100%;
+  z-index: 9999; /* Ensure it's above the map */
+  top: 45px; /* Adjust this to ensure the list appears below the search input */
+}
+
+.search-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+.search-item:hover {
+  background-color: #f1f1f1;
+}
+
+.search-item:active {
+  background-color: #e0e0e0;
+}
+
+
+
+.map-section {
+  flex: 6; /* Adjust width as needed */
+  position: relative;
+  display: inline-block;
+  height: 100%;
+}
+
+.recent-markers-section {
+  flex: 3; /* Adjust width as needed */
+  width: 30vh;
+  background-color: #f9f9f9;
+  border-left: 1px solid #ddd;
+  padding: 10px;
+  overflow-y: auto;
 }
