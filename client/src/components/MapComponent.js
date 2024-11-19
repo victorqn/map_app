@@ -10,7 +10,7 @@ const server = "http://localhost:5000";
 
 L.Icon.Default.mergeOptions({
   iconUrl: 'path_to_marker_icon',
-  shadowUrl: 'path_to_marker_shadow',
+  // shadowUrl: 'path_to_marker_shadow',
 });
 
 const MapComponent = () => {
@@ -59,8 +59,22 @@ const MapComponent = () => {
         mapInstance.setView(mapCenter, mapInstance.getZoom());
       }
     }, [mapCenter]);
-  
 
+      const handleReturnToLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setMapCenter([latitude, longitude]);
+          },
+        (error) => {
+          console.error("Error fetching user location:", error);
+        }
+      );
+    }
+  };
+  
+    //Add new marker connecting with DB
     useEffect(() => {
       const fetchMarkers = async () => {
         try {
@@ -73,24 +87,26 @@ const MapComponent = () => {
       fetchMarkers();
     }, [setMarkers]); // Dependency ensures parent state is updated
     
+    
 
-  const addMarker = (lat, lng) => {
-    const newMarker = {
-      lat,
-      lng,
-      description: '10-minute timer marker',
-      timer: Date.now() + 100000, // 10 minutes from now
-    };
-
-    axios.post(`${server}/api/markers`, newMarker)
-      .then((response) => {
-        setMarkers([...markers, response.data]);
-      })
-      .catch((error) => {
+    const addMarker = async (lat, lng) => {
+      const newMarker = {
+        lat,
+        lng,
+        description: '10-minute timer marker',
+        timer: Date.now() + 10 * 60 * 1000, // 10 minutes from now
+      };
+  
+      try {
+        const response = await axios.post(`${server}/api/markers`, newMarker);
+        setMarkers((prevMarkers) => [...prevMarkers, response.data]);
+      } catch (error) {
         console.error('Error saving marker:', error);
-      });
-  };
-
+      }
+    };
+    
+  
+    // Remove expired markers
   useEffect(() => {
     const interval = setInterval(() => {
       const currentTime = Date.now();
@@ -100,7 +116,9 @@ const MapComponent = () => {
     }, 50);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [setMarkers]);
+
+  
 
   const handleMarkerClick = (marker) => {
     setSelectedMarker(marker);
@@ -125,9 +143,13 @@ const MapComponent = () => {
   };
 
   return (
-    <div style={{ position: 'absolute', height: '100%' }}>
+    <div style={{ height: '100%', width:"100%" }}>
       <SearchBar setMapCenter={setMapCenter} />
-      <MapContainer center={mapCenter} zoom={20} style={{ height: '70%', width: '100%' }} ref={mapRef}>
+      <MapContainer 
+      center={mapCenter} 
+      zoom={13} style={{ height: '100%', width: '100%' }} 
+      ref={mapRef}
+      className='map-container'>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
@@ -145,6 +167,23 @@ const MapComponent = () => {
           </Marker>
         ))}
       </MapContainer>
+      <button
+        onClick={handleReturnToLocation}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: '#007BFF',
+          color: 'white',
+          padding: '10px 15px',
+          borderRadius: '5px',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 1000
+        }}
+      >
+        Return to My Location
+      </button>
 
       {/* Conditionally render the MarkerForm if a marker is selected */}
       {showForm && selectedMarker && (

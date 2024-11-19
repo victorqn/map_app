@@ -43,11 +43,7 @@ app.post('/api/markers', async (req, res) => {
   }
 });
 
-app.get('/test', (req, res) => {
-    res.json({
-        message: 'successo'
-    })    
-})
+
 
 const PORT = 5000 
 app.listen(PORT, () => {

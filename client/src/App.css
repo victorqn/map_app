@@ -1,124 +1,173 @@
+/* General App styles */
 .App {
-  font-family: Arial, sans-serif;
-  display:inline-flex;
-  flex-direction:row;
+  text-align: center;
   height: 100vh;
+  display: flex;
+  flex-direction: row;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
 }
 
-input {
-  padding: 8px;
-  margin: 5px;
-  width: 100%;
+.App-link {
+  color: #61dafb;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-button {
-  padding: 10px;
-  margin: 5px;
-  cursor: pointer;
+.App-link:hover {
+  color: #4caf50;
 }
 
 
-.MapContainer {
-  height: 70%;
-  width: 100%;
-  position: relative;
-  display:inline-flex;
-}
 
+/* SearchBar container */
 .SearchBar {
   position: relative;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  margin: 20px auto;
   width: 90%;
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.MarkerForm {
-  position: fixed;
-  right: 10px;
-  top: 10%;
-  width: 300px;
-  background: white;
-  padding: 10px;
-  z-index: 1001;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
+/* Search input */
 .search-input {
-  padding: 12px;
-  width: 100%;
-  max-width: 500px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
+  padding: 14px;
+  width: calc(100% - 40px);
+  border: 1px solid #ccc;
+  border-radius: 8px;
   font-size: 16px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-input:focus {
   border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
 }
 
+/* Search button */
 .search-button {
   padding: 12px 20px;
   background-color: #4CAF50;
-  color: white;
+  color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   margin-top: 10px;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 .search-button:hover {
   background-color: #45a049;
 }
 
+.search-button:active {
+  background-color: #3e8e41;
+}
+
+/* Search dropdown */
 .search-results {
-  list-style-type: none;
+  list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   position: absolute;
   width: 100%;
-  z-index: 9999; /* Ensure it's above the map */
-  top: 45px; /* Adjust this to ensure the list appears below the search input */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  top: 55px;
+  z-index: 9999;
 }
 
 .search-item {
-  padding: 10px;
+  padding: 12px 15px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   font-size: 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: #333;
 }
 
 .search-item:hover {
-  background-color: #f1f1f1;
+  background-color: #f4f4f9;
+  color: #4caf50;
 }
 
 .search-item:active {
   background-color: #e0e0e0;
 }
 
-
-
-.map-section {
-  flex: 6; /* Adjust width as needed */
-  position: relative;
-  display: inline-block;
-  height: 100%;
+/* MarkerForm */
+.MarkerForm {
+  position: fixed;
+  right: 10px;
+  top: 15%;
+  width: 320px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  border: 1px solid #ddd;
 }
 
+.MarkerForm h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Recent markers section */
 .recent-markers-section {
-  flex: 3; /* Adjust width as needed */
+  flex: 3;
   width: 30vh;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-left: 1px solid #ddd;
   padding: 10px;
   overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .SearchBar {
+    width: 95%;
+  }
+
+  .MarkerForm {
+    width: 90%;
+    right: 5%;
+    top: 20%;
+  }
+
+  .recent-markers-section {
+    flex: none;
+    width: 100%;
+    order: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input {
+    font-size: 14px;
+  }
+
+  .search-item {
+    font-size: 12px;
+  }
+
+  .search-button {
+    font-size: 14px;
+  }
 }
