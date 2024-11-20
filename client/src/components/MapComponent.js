@@ -4,19 +4,20 @@ import axios from 'axios';
 import SearchBar from './SearchBar';
 import MarkerForm from './MarkerForm'; // Import the new form component
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 
 const server = "http://localhost:5000";
 
-L.Icon.Default.mergeOptions({
-  iconUrl: 'path_to_marker_icon',
-  // shadowUrl: 'path_to_marker_shadow',
+const customIcon = L.icon({
+  iconUrl: './police-station.png', // Replace with your icon's path
+  iconSize: [30, 40]
 });
 
 const MapComponent = () => {
   const [markers, setMarkers] = useState([]);
   const [mapCenter, setMapCenter] = useState([-37.8136, 144.9631]); // Default center
-  const [selectedMarker, setSelectedMarker] = useState(null); // Track selected marker
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [showForm, setShowForm] = useState(false); // Track if the form should be displayed
   const mapRef = useRef(null);
 
@@ -60,6 +61,7 @@ const MapComponent = () => {
       }
     }, [mapCenter]);
 
+    // Return to user location
       const handleReturnToLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -89,21 +91,40 @@ const MapComponent = () => {
     
     
 
-    const addMarker = async (lat, lng) => {
-      const newMarker = {
-        lat,
-        lng,
-        description: '10-minute timer marker',
-        timer: Date.now() + 10 * 60 * 1000, // 10 minutes from now
-      };
-  
-      try {
-        const response = await axios.post(`${server}/api/markers`, newMarker);
-        setMarkers((prevMarkers) => [...prevMarkers, response.data]);
-      } catch (error) {
-        console.error('Error saving marker:', error);
-      }
-    };
+// Add marker and refresh markers
+const addMarker = async (data) => {
+  const { lat, lng, tramNumber, route } = data;
+  const newMarker = {
+    lat,
+    lng,
+    description: `Tram ${tramNumber}, Route: ${route}`,
+    timer: Date.now() + 10 * 60 * 1000, // 10 minutes from now
+  };
+
+  try {
+    const response = await axios.post(`${server}/api/markers`, newMarker);
+    setMarkers((prevMarkers) => [...prevMarkers, response.data]); // Update state immediately
+    await fetchMarkers(); // Re-fetch markers from the server for accuracy
+  } catch (error) {
+    console.error('Error saving marker:', error);
+  }
+};
+
+// Fetch markers from the server
+const fetchMarkers = async () => {
+  try {
+    const response = await axios.get(`${server}/api/markers`);
+    setMarkers(response.data);
+  } catch (error) {
+    console.error('Error fetching markers:', error);
+  }
+};
+
+// Use useEffect to refresh markers on initial load or after updates
+useEffect(() => {
+  fetchMarkers(); // Fetch markers on component mount
+}, []);
+
     
   
     // Remove expired markers
@@ -120,26 +141,23 @@ const MapComponent = () => {
 
   
 
-  const handleMarkerClick = (marker) => {
-    setSelectedMarker(marker);
-    setShowForm(true); // Show the form when a marker is clicked
-  };
-
-  const handleFormSubmit = (formData) => {
-    // You can update the marker with the form data (tram number, route)
-    console.log('Form submitted with data:', formData);
-    setShowForm(false); // Close the form after submission
-  };
-
-  
-
-  const MapClickHandler = () => {
+// Handle map click to show the form
+const MapClickHandler = () => {
     useMapEvents({
       click: (e) => {
-        addMarker(e.latlng.lat, e.latlng.lng);
+        setSelectedLocation(e.latlng); // Save the clicked location
+        setShowForm(true); // Show the form
       },
     });
     return null;
+  };
+
+  const handleFormSubmit = (formData) => {
+    if (selectedLocation) {
+      addMarker({ ...formData, ...selectedLocation }); // Combine form data with location
+    }
+    setSelectedLocation(null); // Reset the location
+    setShowForm(false); // Hide the form
   };
 
   return (
@@ -158,7 +176,7 @@ const MapComponent = () => {
         {markers.map((marker, index) => (
           <Marker key={index} 
           position={[marker.lat, marker.lng]} 
-          eventHandlers={{ click: () => handleMarkerClick(marker) }}>
+          icon={customIcon} >
             <Popup>
               {marker.description}
               <br />
@@ -169,43 +187,33 @@ const MapComponent = () => {
       </MapContainer>
       <button
         onClick={handleReturnToLocation}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          backgroundColor: '#007BFF',
-          color: 'white',
-          padding: '10px 15px',
-          borderRadius: '5px',
-          border: 'none',
-          cursor: 'pointer',
-          zIndex: 1000
-        }}
+       className='return-location-button'
       >
         Return to My Location
       </button>
 
-      {/* Conditionally render the MarkerForm if a marker is selected */}
-      {showForm && selectedMarker && (
+      {/* Render the MarkerForm conditionally */}
+      {showForm && (
         <div
           style={{
-            position: 'relative',
+            position: 'absolute',
             right: '20px',
             top: '20px',
             backgroundColor: 'white',
             padding: '20px',
             borderRadius: '10px',
             boxShadow: '0px 0px 10px rgba(0,0,0,0.2)',
-            zIndex: 1000
+            zIndex: 1000,
           }}
         >
           <MarkerForm
             onSubmit={handleFormSubmit}
-            onClose={() => setShowForm(false)} // Close form when Cancel is clicked
+            onClose={() => setShowForm(false)} // Close the form on cancel
           />
         </div>
       )}
     </div>
   );
 };
+
 export default MapComponent;

@@ -33,27 +33,24 @@ const RecentMarkers = () => {
   
 
   return (
-    <div className="recentMarkers" style={{ height: '100%', width: "30vh", overflowY: 'scroll' }}>
-      <h3>Recent Markers</h3>
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : recentMarkers.length > 0 ? (
-        recentMarkers.map((marker, index) => (
-          <div key={index} style={{
-            marginBottom: '10px',
-            borderBottom: '1px solid #ccc',
-            paddingBottom: '10px'
-          }}>
-            <p><strong>Description:</strong> {marker.description}</p>
-            <p><strong>Added:</strong> {Math.round((Date.now() - marker.timer) / 60000)} minutes ago</p>
-          </div>
-        ))
-      ) : (
-        <p>No recent markers.</p>
-      )}
-    </div>
+<div className="recent-markers-section">
+  <h3>Recent Markers</h3>
+  {loading ? (
+    <p>Loading...</p>
+  ) : error ? (
+    <p>{error}</p>
+  ) : recentMarkers.length > 0 ? (
+    recentMarkers.map((marker, index) => (
+      <div key={index} className="recent-markers-item">
+        <p><strong>Description:</strong> {marker.description}</p>
+        <p><strong>Added:</strong> {Math.round((Date.now() - marker.timer) / 600000)} minutes ago</p>
+      </div>
+    ))
+  ) : (
+    <p>No recent markers.</p>
+  )}
+</div>
+
   );
 };
 
