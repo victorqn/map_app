@@ -4,9 +4,14 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { Marker } = require('./models/markers.js');
+const authRoutes = require("./routes/auth");
+
+
+
 
 app.use(cors());
 app.use(express.json());
+
 
 // Connect to MongoDB
 const uri = process.env.MONGO_URI
@@ -20,6 +25,8 @@ const connectToDB = async () => {
     }
 }
 connectToDB()
+
+app.use("/api/auth", authRoutes);
 
 // Define the route to get all markers
 app.get('/api/markers', async (req, res) => {
@@ -43,11 +50,7 @@ app.post('/api/markers', async (req, res) => {
   }
 });
 
-app.get('/test', (req, res) => {
-    res.json({
-        message: 'successo'
-    })    
-})
+
 
 const PORT = 5000 
 app.listen(PORT, () => {
