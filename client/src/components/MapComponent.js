@@ -1,27 +1,29 @@
+//Import library and components
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import axios from 'axios';
 import SearchBar from './SearchBar';
-import MarkerForm from './MarkerForm'; // Import the new form component
+import MarkerForm from './MarkerForm'; 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-
+// Define server url
 const server = "http://localhost:5000";
 
+//Defines custom icon using leaflet
 const customIcon = L.icon({
-  iconUrl: './police-station.png', // Replace with your icon's path
+  iconUrl: './police-station.png', 
   iconSize: [30, 40]
 });
 
 const MapComponent = () => {
-  const [markers, setMarkers] = useState([]);
-  const [mapCenter, setMapCenter] = useState([-37.8136, 144.9631]); // Default center
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [showForm, setShowForm] = useState(false); // Track if the form should be displayed
+  const [markers, setMarkers] = useState([]); //Store markers
+  const [mapCenter, setMapCenter] = useState([-37.8136, 144.9631]); // Initial state as center
+  const [selectedLocation, setSelectedLocation] = useState(null); //Track the last clicked location to popup form
+  const [showForm, setShowForm] = useState(false); // Defines if the form should open or not
   const mapRef = useRef(null);
 
-    // Fetch user's location on load
+    // Search user's location on load using Geolocation API
     useEffect(() => {
       const fetchUserLocation = async () => {
         if (navigator.geolocation) {
@@ -31,9 +33,11 @@ const MapComponent = () => {
               setMapCenter([latitude, longitude]);
             },
             async () => {
+              // Try to search approximate location via IP using IP API
               try {
                 const response = await axios.get("http://ip-api.com/json/");
                 const { lat, lon } = response.data;
+                //Change the state of the mapCenter
                 setMapCenter([lat, lon]);
               } catch (error) {
                 console.error("Error fetching IP location:", error);
@@ -53,7 +57,7 @@ const MapComponent = () => {
       fetchUserLocation();
     }, []);
   
-    // Update the map center programmatically
+    // Update the map center when the value change(Geolocation, IP or search)
     useEffect(() => {
       if (mapRef.current) {
         const mapInstance = mapRef.current;
@@ -61,7 +65,7 @@ const MapComponent = () => {
       }
     }, [mapCenter]);
 
-    // Return to user location
+    // Button to return to user location using Geolocation API
       const handleReturnToLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -76,35 +80,35 @@ const MapComponent = () => {
     }
   };
   
-    //Add new marker connecting with DB
+    //Fetch markers status on DB and update the value of markers
     useEffect(() => {
       const fetchMarkers = async () => {
         try {
           const response = await axios.get(`${server}/api/markers`);
-          setMarkers(response.data); // Update parent state with fetched markers
+          setMarkers(response.data); // Update all data in the DB
         } catch (error) {
           console.error('Error fetching markers:', error);
         }
       };
       fetchMarkers();
-    }, [setMarkers]); // Dependency ensures parent state is updated
+    }, [setMarkers]);
     
     
 
-// Add marker and refresh markers
+// Add marker a new marker
 const addMarker = async (data) => {
   const { lat, lng, tramNumber, route } = data;
   const newMarker = {
     lat,
     lng,
     description: `Tram ${tramNumber}, Route: ${route}`,
-    timer: Date.now() + 10 * 60 * 1000, // 10 minutes from now
+    timer: Date.now() + 2 * 60 * 1000, // 2 minutes from now
   };
 
   try {
     const response = await axios.post(`${server}/api/markers`, newMarker);
     setMarkers((prevMarkers) => [...prevMarkers, response.data]); // Update state immediately
-    await fetchMarkers(); // Re-fetch markers from the server for accuracy
+    await fetchMarkers(); // Re-fetch markers from DB to make sure it is precise
   } catch (error) {
     console.error('Error saving marker:', error);
   }
@@ -119,10 +123,8 @@ const fetchMarkers = async () => {
     console.error('Error fetching markers:', error);
   }
 };
-
-// Use useEffect to refresh markers on initial load or after updates
 useEffect(() => {
-  fetchMarkers(); // Fetch markers on component mount
+  fetchMarkers();// Use useEffect to refresh markers on initial load or after updates
 }, []);
 
     
@@ -146,7 +148,7 @@ const MapClickHandler = () => {
     useMapEvents({
       click: (e) => {
         setSelectedLocation(e.latlng); // Save the clicked location
-        setShowForm(true); // Show the form
+        setShowForm(true); // Show the form changing the state to true when selectedlocation
       },
     });
     return null;
@@ -154,14 +156,14 @@ const MapClickHandler = () => {
 
   const handleFormSubmit = (formData) => {
     if (selectedLocation) {
-      addMarker({ ...formData, ...selectedLocation }); // Combine form data with location
+      addMarker({ ...formData, ...selectedLocation }); // Add form data to poup
     }
     setSelectedLocation(null); // Reset the location
     setShowForm(false); // Hide the form
   };
 
   return (
-    <div style={{ height: '100%', width:"100%" }}>
+    <div style={{ height: '100vh', width:"100%" }}>
       <SearchBar setMapCenter={setMapCenter} />
       <MapContainer 
       center={mapCenter} 
@@ -180,7 +182,7 @@ const MapClickHandler = () => {
             <Popup>
               {marker.description}
               <br />
-              <strong>Time left: {Math.max(0, Math.floor((marker.timer - Date.now()) / 60000))} minutes</strong>
+              <strong>A myki inspector was here: {Math.max(0, Math.floor((marker.timer - Date.now()) / 60000))} minutes ago</strong>
             </Popup>
           </Marker>
         ))}
@@ -192,7 +194,7 @@ const MapClickHandler = () => {
         Return to My Location
       </button>
 
-      {/* Render the MarkerForm conditionally */}
+      {/* Render the MarkerForm only if marker is added */}
       {showForm && (
         <div
           style={{

@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+// require("dotenv").config();
 
+const server = "http://localhost:5000"
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -9,9 +11,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      
-      alert('Login successful!');
+      await axios.get(`${server}/api/auth/`, { email, password });
+      alert(`Login successful! Welcome`);
     
     } catch (err) {
       alert('Error logging in');

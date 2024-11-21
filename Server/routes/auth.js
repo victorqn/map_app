@@ -31,21 +31,20 @@ router.post("/users", async (req, res) => {
 });
 
 // Login
-router.post("/", async (req, res) => {
-  console.log(req.body)
+router.get("/", async (req, res) => {
   const { email, password } = req.body;
-
   if (!email || !password) {
     return res.status(400).send("Email and password are required");
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }); 
     if (!user) {
       return res.status(400).send("User not found");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch)
     if (!isMatch) {
       return res.status(400).send("Invalid credentials");
     }

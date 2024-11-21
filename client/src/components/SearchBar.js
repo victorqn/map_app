@@ -6,7 +6,7 @@ const SearchBar = ({ setMapCenter }) => {
   const [results, setResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Function to fetch location suggestions
+  // Function to fetch location based on search connecting with API
   const fetchLocations = async (searchQuery) => {
     if (!searchQuery) return; // Prevent empty queries
     try {
@@ -27,7 +27,7 @@ const SearchBar = ({ setMapCenter }) => {
         setResults([]);
         setShowDropdown(false);
       }
-    }, 300); // 300ms debounce delay
+    }, 30); // 30ms debounce delay
 
     return () => clearTimeout(delayDebounce);
   }, [query]);
@@ -39,10 +39,11 @@ const SearchBar = ({ setMapCenter }) => {
     setShowDropdown(false); // Hide dropdown after selection
   };
 
+  //Handle search as query for API
   const handleInputChange = (e) => {
     setQuery(e.target.value);
   };
-
+  //Handle when user clear search bar and close dropdwon
   const handleInputClear = () => {
     setQuery('');
     setResults([]);
@@ -58,6 +59,7 @@ const SearchBar = ({ setMapCenter }) => {
         placeholder="Search for a location"
         className="search-input"
       />
+      {/* Render the dropdown only if query is valid */}
       {query && (
         <button onClick={handleInputClear} className="clear-button">X</button>
       )}

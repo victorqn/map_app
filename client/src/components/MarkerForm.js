@@ -5,7 +5,7 @@ const MarkerForm = ({ onSubmit, onClose }) => {
   const [route, setRoute] = useState('');
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); //If it does not handle the event none action will be taken
     if (tramNumber && route) {
       onSubmit({ tramNumber, route });
       onClose(); // Close the form after submission
