@@ -12,7 +12,7 @@ const RecentMarkers = () => {
     // Fetch markers from the server
     const fetchMarkers = async () => {
       try {
-        const response = await axios.get(`${server}/api/markers`); // Update to match your server's URL
+        const response = await axios.get(`${server}/api/markers`); 
         setMarkers(response.data);
         setLoading(false);
       } catch (err) {
@@ -25,10 +25,10 @@ const RecentMarkers = () => {
   }, []);
 
   
-
-  const maxMarkersToShow = 5; // Adjust to the desired number
+  //Set up the orden of the markers to be shown  
+  const maxMarkersToShow = 5;
   const recentMarkers = markers
-    .sort((a, b) => b.timer - a.timer)
+    .sort((a, b) => b.timer - a.timer)//sort it less time to more time
     .slice(0, maxMarkersToShow);
   
 

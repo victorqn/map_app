@@ -1,3 +1,30 @@
+// import React from 'react';
+// import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+// import Login from './components/LoginPage';
+// import Register from './components/RegisterPage';
+// // import MapComponent from './components/MapComponent';
+
+// function App() {
+//   return (
+//     <Router>
+//       <div>
+//         <h1>Bird app</h1>
+//         <nav>
+//           <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
+//         </nav>
+//         <Routes>
+//           <Route path="/login" element={<Login />} />
+//           <Route path="/register" element={<Register />} />
+          
+//         </Routes>
+//       </div>
+//     </Router>
+//   );
+// }
+
+
+// export default App;
+
 import React from 'react';
 import './App.css';
 import MapComponent from './components/MapComponent'; 
